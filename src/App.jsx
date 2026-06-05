@@ -16,6 +16,7 @@ import PrivateRoute from "@/pages/PrivateRoute"
 function App() {
   return (
     <Routes>
+      
       <Route path="login" element={<Login />} />
       <Route path="auth" element={<Auth />} />
 

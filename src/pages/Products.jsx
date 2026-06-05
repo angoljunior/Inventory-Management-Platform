@@ -1,16 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MoreHorizontalIcon,
   Plus,
   ChevronDown,
   ArrowUpDown,
-} from "lucide-react"
+} from "lucide-react";
 
-import api from "@/api/axios"
+import api from "@/api/axios";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 
 import {
   Table,
@@ -29,7 +29,7 @@ import {
   TableHeader,
   TableCaption,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
 import {
   Dialog,
@@ -40,13 +40,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import {
-  Field,
-  FieldLabel,
-  FieldGroup,
-} from "@/components/ui/field"
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
 
 import {
   Select,
@@ -55,19 +51,21 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
-import { Label } from "@/components/ui/label"
+import { Label } from "@/components/ui/label";
 
 const Products = () => {
-  const [products, setProducts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [suppliers, setSuppliers] = useState([])
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
-  const [filter, setFilter] = useState("")
-  const [sortAsc, setSortAsc] = useState(true)
-  const [selectedRows, setSelectedRows] = useState([])
-  const [open, setOpen] = useState(false)
+  const [filter, setFilter] = useState("");
+  const [sortAsc, setSortAsc] = useState(true);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [open, setOpen] = useState(false);
+  //get superuser status
+  const isSuperUser = localStorage.getItem("isSuperUser");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -79,7 +77,7 @@ const Products = () => {
     cost_price: "",
     selling_price: "",
     quantity: "",
-  })
+  });
 
   const [visibleColumns, setVisibleColumns] = useState({
     product: true,
@@ -87,57 +85,57 @@ const Products = () => {
     price: true,
     quantity: true,
     status: true,
-  })
+  });
 
   const fetchProducts = async () => {
     try {
-      const res = await api.get("products/")
-      setProducts(res.data)
+      const res = await api.get("products/");
+      setProducts(res.data);
     } catch (error) {
-      console.error("Failed to fetch products:", error)
+      console.error("Failed to fetch products:", error);
     }
-  }
+  };
 
   const fetchCategories = async () => {
     try {
-      const res = await api.get("categories/")
-      setCategories(res.data)
+      const res = await api.get("categories/");
+      setCategories(res.data);
     } catch (error) {
-      console.error("Failed to fetch categories:", error)
+      console.error("Failed to fetch categories:", error);
     }
-  }
+  };
 
   const fetchSuppliers = async () => {
     try {
-      const res = await api.get("suppliers/")
-      setSuppliers(res.data)
+      const res = await api.get("suppliers/");
+      setSuppliers(res.data);
     } catch (error) {
-      console.error("Failed to fetch suppliers:", error)
+      console.error("Failed to fetch suppliers:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProducts()
-    fetchCategories()
-    fetchSuppliers()
-  }, [])
+    fetchProducts();
+    fetchCategories();
+    fetchSuppliers();
+  }, []);
 
   const handleInputChange = (e) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }))
-  }
+    }));
+  };
 
   const handleSelectChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
-    }))
-  }
+    }));
+  };
 
   const handleAddProduct = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const payload = {
@@ -150,9 +148,9 @@ const Products = () => {
         cost_price: formData.cost_price,
         selling_price: formData.selling_price,
         quantity: Number(formData.quantity),
-      }
+      };
 
-      await api.post("products/", payload)
+      await api.post("products/", payload);
 
       setFormData({
         name: "",
@@ -164,63 +162,61 @@ const Products = () => {
         cost_price: "",
         selling_price: "",
         quantity: "",
-      })
+      });
 
-      setOpen(false)
-      fetchProducts()
+      setOpen(false);
+      fetchProducts();
       toast.success("Products Added successfully! ✅");
     } catch (error) {
-      console.error("Failed to add product:", error.response?.data || error)
+      console.error("Failed to add product:", error.response?.data || error);
       toast.error("Failed to add Products! ✅");
     }
-  }
+  };
 
   const filteredProducts = useMemo(() => {
     return products
       .filter((product) => {
-        const name = product.name || ""
-        const category = product.category_name || product.category || ""
+        const name = product.name || "";
+        const category = product.category_name || product.category || "";
 
         return (
           name.toLowerCase().includes(filter.toLowerCase()) ||
           String(category).toLowerCase().includes(filter.toLowerCase())
-        )
+        );
       })
       .sort((a, b) => {
         if (sortAsc) {
-          return a.name.localeCompare(b.name)
+          return a.name.localeCompare(b.name);
         }
 
-        return b.name.localeCompare(a.name)
-      })
-  }, [products, filter, sortAsc])
+        return b.name.localeCompare(a.name);
+      });
+  }, [products, filter, sortAsc]);
 
   const allSelected =
     filteredProducts.length > 0 &&
-    filteredProducts.every((product) => selectedRows.includes(product.id))
+    filteredProducts.every((product) => selectedRows.includes(product.id));
 
   const toggleRow = (id) => {
     setSelectedRows((prev) =>
-      prev.includes(id)
-        ? prev.filter((rowId) => rowId !== id)
-        : [...prev, id]
-    )
-  }
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
+    );
+  };
 
   const toggleAll = () => {
     if (allSelected) {
-      setSelectedRows([])
+      setSelectedRows([]);
     } else {
-      setSelectedRows(filteredProducts.map((product) => product.id))
+      setSelectedRows(filteredProducts.map((product) => product.id));
     }
-  }
+  };
 
   const toggleColumn = (column) => {
     setVisibleColumns((prev) => ({
       ...prev,
       [column]: !prev[column],
-    }))
-  }
+    }));
+  };
 
   return (
     <>
@@ -232,170 +228,174 @@ const Products = () => {
               Manage products for your inventory.
             </p>
           </div>
+          {isSuperUser === "true" && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Plus className="ml-8 h-4 w-4" />
+                  Add Product
+                </Button>
+              </DialogTrigger>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
-            </DialogTrigger>
+              <DialogContent
+                className="sm:max-w-sm"
+                style={{ maxHeight: "80vh", overflowY: "auto" }}
+              >
+                <form onSubmit={handleAddProduct}>
+                  <DialogHeader>
+                    <DialogTitle>Add Product</DialogTitle>
+                    <DialogDescription>
+                      Fill in the details for the new product.
+                    </DialogDescription>
+                  </DialogHeader>
 
-            <DialogContent
-              className="sm:max-w-sm"
-              style={{ maxHeight: "80vh", overflowY: "auto" }}
-            >
-              <form onSubmit={handleAddProduct}>
-                <DialogHeader>
-                  <DialogTitle>Add Product</DialogTitle>
-                  <DialogDescription>
-                    Fill in the details for the new product.
-                  </DialogDescription>
-                </DialogHeader>
+                  <FieldGroup className="mt-4">
+                    <Field>
+                      <Label htmlFor="product-name">Name</Label>
+                      <Input
+                        id="product-name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Field>
 
-                <FieldGroup className="mt-4">
-                  <Field>
-                    <Label htmlFor="product-name">Name</Label>
-                    <Input
-                      id="product-name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Field>
+                    <Field>
+                      <FieldLabel>Category</FieldLabel>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          handleSelectChange("category", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category.id}
+                                value={String(category.id)}
+                              >
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
 
-                  <Field>
-                    <FieldLabel>Category</FieldLabel>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) =>
-                        handleSelectChange("category", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.id}
-                              value={String(category.id)}
-                            >
-                              {category.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
+                    <Field>
+                      <FieldLabel>Supplier</FieldLabel>
+                      <Select
+                        value={formData.supplier}
+                        onValueChange={(value) =>
+                          handleSelectChange("supplier", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose supplier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {suppliers.map((supplier) => (
+                              <SelectItem
+                                key={supplier.id}
+                                value={String(supplier.id)}
+                              >
+                                {supplier.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    </Field>
 
-                  <Field>
-                    <FieldLabel>Supplier</FieldLabel>
-                    <Select
-                      value={formData.supplier}
-                      onValueChange={(value) =>
-                        handleSelectChange("supplier", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose supplier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {suppliers.map((supplier) => (
-                            <SelectItem
-                              key={supplier.id}
-                              value={String(supplier.id)}
-                            >
-                              {supplier.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-color">Color</Label>
+                      <Input
+                        id="product-color"
+                        name="color"
+                        value={formData.color}
+                        onChange={handleInputChange}
+                      />
+                    </Field>
 
-                  <Field>
-                    <Label htmlFor="product-color">Color</Label>
-                    <Input
-                      id="product-color"
-                      name="color"
-                      value={formData.color}
-                      onChange={handleInputChange}
-                    />
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-storage">Storage</Label>
+                      <Input
+                        id="product-storage"
+                        name="storage"
+                        value={formData.storage}
+                        onChange={handleInputChange}
+                      />
+                    </Field>
 
-                  <Field>
-                    <Label htmlFor="product-storage">Storage</Label>
-                    <Input
-                      id="product-storage"
-                      name="storage"
-                      value={formData.storage}
-                      onChange={handleInputChange}
-                    />
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-sku">SKU</Label>
+                      <Input
+                        id="product-sku"
+                        name="sku"
+                        value={formData.sku}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Field>
 
-                  <Field>
-                    <Label htmlFor="product-sku">SKU</Label>
-                    <Input
-                      id="product-sku"
-                      name="sku"
-                      value={formData.sku}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-cost-price">Cost Price</Label>
+                      <Input
+                        id="product-cost-price"
+                        name="cost_price"
+                        type="number"
+                        value={formData.cost_price}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Field>
 
-                  <Field>
-                    <Label htmlFor="product-cost-price">Cost Price</Label>
-                    <Input
-                      id="product-cost-price"
-                      name="cost_price"
-                      type="number"
-                      value={formData.cost_price}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-selling-price">
+                        Selling Price
+                      </Label>
+                      <Input
+                        id="product-selling-price"
+                        name="selling_price"
+                        type="number"
+                        value={formData.selling_price}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Field>
 
-                  <Field>
-                    <Label htmlFor="product-selling-price">Selling Price</Label>
-                    <Input
-                      id="product-selling-price"
-                      name="selling_price"
-                      type="number"
-                      value={formData.selling_price}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Field>
+                    <Field>
+                      <Label htmlFor="product-quantity">Quantity</Label>
+                      <Input
+                        id="product-quantity"
+                        name="quantity"
+                        type="number"
+                        value={formData.quantity}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Field>
+                  </FieldGroup>
 
-                  <Field>
-                    <Label htmlFor="product-quantity">Quantity</Label>
-                    <Input
-                      id="product-quantity"
-                      name="quantity"
-                      type="number"
-                      value={formData.quantity}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Field>
-                </FieldGroup>
-
-                <DialogFooter className="mt-4">
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline">
-                      Cancel
-                    </Button>
-                  </DialogClose>
-                  <Button type="submit">Save changes</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <DialogFooter className="mt-4">
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="submit">Save changes</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+          ;
         </div>
       </div>
 
@@ -473,7 +473,6 @@ const Products = () => {
                   >
                     Product
                     <ArrowUpDown className="ml-2 h-4 w-4" />
-
                   </Button>
                 </TableHead>
               )}
@@ -494,9 +493,9 @@ const Products = () => {
           <TableBody>
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => {
-                const reorderLevel = product.reorder_level ?? 5
+                const reorderLevel = product.reorder_level ?? 5;
                 const isLowStock =
-                  product.is_low_stock || product.quantity <= reorderLevel
+                  product.is_low_stock || product.quantity <= reorderLevel;
 
                 return (
                   <TableRow key={product.id}>
@@ -546,7 +545,7 @@ const Products = () => {
                       </TableCell>
                     )}
 
-{/*                     <TableCell>
+                    {/*                     <TableCell>
   {product.barcode_image ? (
     <img
       src={product.barcode_image}
@@ -561,7 +560,11 @@ const Products = () => {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="size-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-8"
+                          >
                             <MoreHorizontalIcon />
                             <span className="sr-only">Open menu</span>
                           </Button>
@@ -578,7 +581,7 @@ const Products = () => {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })
             ) : (
               <TableRow>
@@ -609,7 +612,7 @@ const Products = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Products
+export default Products;

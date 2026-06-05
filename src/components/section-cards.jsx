@@ -1,6 +1,5 @@
-"use client"
-
-import { Badge } from "@/components/ui/badge"
+import React, { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -8,99 +7,156 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+} from "@/components/ui/card";
+import {
+  PackageIcon,
+  AlertTriangleIcon,
+  ShoppingCartIcon,
+  WalletIcon,
+} from "lucide-react";
+
+import api from "@/api/axios";
 
 export function SectionCards() {
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalStockValue: 0,
+    totalSales: 0,
+    lowStockItems: 0,
+  });
+
+  const fetchStats = async () => {
+    try {
+      const productsRes = await api.get("products/");
+      const salesRes = await api.get("transactions/");
+
+      const products = productsRes.data;
+      const sales = salesRes.data;
+
+      const totalProducts = products.length;
+
+      const totalStockValue = products.reduce((sum, product) => {
+        const price = Number(product.selling_price || 0);
+        const quantity = Number(product.quantity || 0);
+        return sum + price * quantity;
+      }, 0);
+
+      const totalSales = sales.reduce((sum, sale) => {
+        return sum + Number(sale.total_amount || 0);
+      }, 0);
+
+      const lowStockItems = products.filter((product) => {
+        const quantity = Number(product.quantity || 0);
+        const reorderLevel = Number(product.reorder_level || 5);
+        return quantity <= reorderLevel;
+      }).length;
+
+      setStats({
+        totalProducts,
+        totalStockValue,
+        totalSales,
+        lowStockItems,
+      });
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   return (
-    <div
-      className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
+    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
+          <CardDescription>Total Products</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            {stats.totalProducts}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon />
-              +12.5%
+              <PackageIcon className="size-4" />
+              Products
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month{" "}
-            <TrendingUpIcon className="size-4" />
+            Products in inventory <PackageIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Visitors for the last 6 months
+            Total number of products added
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>New Customers</CardDescription>
+          <CardDescription>Total Stock Value</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            GHS {stats.totalStockValue.toLocaleString()}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingDownIcon />
-              -20%
+              <WalletIcon className="size-4" />
+              Stock
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period{" "}
-            <TrendingDownIcon className="size-4" />
+            Current inventory value <WalletIcon className="size-4" />
           </div>
           <div className="text-muted-foreground">
-            Acquisition needs attention
+            Based on selling price × quantity
           </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
+          <CardDescription>Total Sales</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+            GHS {stats.totalSales.toLocaleString()}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon />
-              +12.5%
+              <ShoppingCartIcon className="size-4" />
+              Sales
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention{" "}
-            <TrendingUpIcon className="size-4" />
+            Revenue from sales <ShoppingCartIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
+          <div className="text-muted-foreground">
+            Sum of all completed sale records
+          </div>
         </CardFooter>
       </Card>
+
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
+          <CardDescription>Low Stock Items</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
+            {stats.lowStockItems}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
-              <TrendingUpIcon />
-              +4.5%
+              <AlertTriangleIcon className="size-4" />
+              Alert
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase{" "}
-            <TrendingUpIcon className="size-4" />
+            Items need restocking <AlertTriangleIcon className="size-4" />
           </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
+          <div className="text-muted-foreground">
+            Quantity is below reorder level
+          </div>
         </CardFooter>
       </Card>
     </div>

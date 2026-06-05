@@ -47,7 +47,7 @@ const LineChart = () => {
   useEffect(() => {
     const fetchSales = async () => {
       try {
-        const res = await api.get("sales/");
+        const res = await api.get("transactions/");
         setSales(res.data);
       } catch (error) {
         console.error("Error fetching sales:", error);
@@ -88,7 +88,7 @@ const LineChart = () => {
         const dayIndex = saleDate.getDay();
 
         groupedData[dayIndex].sales += Number(
-          sale.total_amount || sale.subtotal || 0
+          sale.total_amount || sale.subtotal || 0,
         );
       });
 
@@ -110,7 +110,7 @@ const LineChart = () => {
         }
 
         groupedData[day].sales += Number(
-          sale.total_amount || sale.subtotal || 0
+          sale.total_amount || sale.subtotal || 0,
         );
       });
 
